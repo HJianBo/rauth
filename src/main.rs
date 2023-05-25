@@ -4,9 +4,7 @@ use chrono::Utc;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
 struct ClientStatus {
-    clientid: String,
-    event: String,
-    reason: String,
+    clientid: String
 }
 
 #[actix_web::main]
@@ -27,7 +25,7 @@ async fn main() -> std::io::Result<()> {
 
 #[post("/webhook")]
 async fn webhook(payload: web::Json<ClientStatus>) -> HttpResponse {
-    println!("{} {}, {}, {}", Utc::now().to_rfc3339(), payload.clientid, payload.event, payload.reason);
+    println!("{} {}", Utc::now().to_rfc3339(), payload.clientid);
     HttpResponse::Ok().finish()
 }
 
