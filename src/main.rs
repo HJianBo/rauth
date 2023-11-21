@@ -1,3 +1,4 @@
+use actix_web::web::Bytes;
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use actix_web::post;
 use chrono::Utc;
@@ -17,6 +18,8 @@ async fn main() -> std::io::Result<()> {
                      .wrap(middleware::Logger::default())
                      .route("/", web::get().to(index))
                      .service(webhook)
+                     .service(webhook_msg)
+                     .service(metrics)
                      )
         .bind("0.0.0.0:8080")?
         .run()
@@ -26,6 +29,18 @@ async fn main() -> std::io::Result<()> {
 #[post("/webhook")]
 async fn webhook(payload: web::Json<ClientStatus>) -> HttpResponse {
     println!("{} {}", Utc::now().to_rfc3339(), payload.clientid);
+    HttpResponse::Ok().finish()
+}
+
+#[post("/webhook/{clientid}")]
+async fn webhook_msg(request: Bytes) -> HttpResponse {
+    println!("{} {}", Utc::now().to_rfc3339(), String::from_utf8(request.to_vec()).unwrap());
+    HttpResponse::Ok().finish()
+}
+
+#[post("/metrics")]
+async fn metrics(request: Bytes) -> HttpResponse {
+    println!("{} {}", Utc::now().to_rfc3339(), String::from_utf8(request.to_vec()).unwrap());
     HttpResponse::Ok().finish()
 }
 
